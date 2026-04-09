@@ -18,11 +18,17 @@ final class ProfileViewModel: ObservableObject {
     @Published var showAlert: Bool = false
     @Published var alertMessage: String = ""
 
+    private let networkService: NetworkServiceProtocol
+
+    init(networkService: NetworkServiceProtocol = NetworkService()) {
+        self.networkService = networkService
+    }
+
     @MainActor
     func loadProfile() async {
         isLoading = true
         do {
-            let data = try await NetworkService.shared.fetchProfile()
+            let data = try await networkService.fetchProfile()
             self.profile = data
             self.firstName = data.firstName
             self.lastName = data.lastName
@@ -44,13 +50,32 @@ final class ProfileViewModel: ObservableObject {
             showAlert = true
             return
         }
-        alertMessage = "Məlumatlar yadda saxlanıldı"
-        showAlert = true
+        Task {
+            do {
+                try await networkService.updateProfile(
+                    firstName: firstName,
+                    lastName: lastName,
+                    gender: gender,
+                    city: selectedCityKey,
+                    birthDate: formatDate(birthDate)
+                )
+                alertMessage = "Məlumatlar yadda saxlanıldı"
+            } catch {
+                alertMessage = "Xəta baş verdi: \(error.localizedDescription)"
+            }
+            showAlert = true
+        }
     }
 
     private func parseDate(_ string: String) -> Date {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         return formatter.date(from: string) ?? Date()
+    }
+
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: date)
     }
 }

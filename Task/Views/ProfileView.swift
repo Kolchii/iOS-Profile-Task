@@ -11,7 +11,7 @@ struct ProfileView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 32) {
+            VStack(alignment: .leading, spacing: 24) {
                 profileImageSection
                 nameSection
                 genderSection
@@ -22,8 +22,7 @@ struct ProfileView: View {
             .padding(.horizontal, 24)
             .padding(.top, 16)
         }
-        .navigationTitle("Məlumatlarım")
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarHidden(true)
         .overlay {
             if viewModel.isLoading {
                 ProgressView()
@@ -41,39 +40,58 @@ struct ProfileView: View {
     }
 
     private var profileImageSection: some View {
-        HStack {
-            Spacer()
-            ZStack(alignment: .bottomTrailing) {
-                AsyncImage(url: imageURL) { image in
-                    image
-                        .resizable()
-                        .scaledToFill()
-                } placeholder: {
-                    Image(systemName: "person.circle.fill")
-                        .resizable()
-                        .foregroundColor(Color(.systemGray3))
+        ZStack(alignment: .top) {
+            HStack {
+                Button {
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(.primary)
                 }
-                .frame(width: 90, height: 90)
-                .clipShape(Circle())
-
-                ZStack {
-                    Circle()
-                        .fill(Color(.systemGray5))
-                        .frame(width: 28, height: 28)
-                    Image(systemName: "camera.fill")
-                        .font(.system(size: 13))
-                        .foregroundColor(.black)
-                }
+                Spacer()
+                Text("Məlumatlarım")
+                    .font(.system(size: 17, weight: .semibold))
+                Spacer()
+                Color.clear
+                    .frame(width: 24, height: 24)
             }
-            Spacer()
+            .padding(.top, 8)
+
+            HStack {
+                Spacer()
+                ZStack(alignment: .bottomTrailing) {
+                    AsyncImage(url: imageURL) { image in
+                        image
+                            .resizable()
+                            .scaledToFill()
+                    } placeholder: {
+                        Image(systemName: "person.circle.fill")
+                            .resizable()
+                            .foregroundColor(Color(.systemGray3))
+                    }
+                    .frame(width: 80, height: 80)
+                    .clipShape(Circle())
+
+                    ZStack {
+                        Circle()
+                            .fill(Color(.systemGray5))
+                            .frame(width: 26, height: 26)
+                        Image(systemName: "camera.fill")
+                            .font(.system(size: 12))
+                            .foregroundColor(.black)
+                    }
+                }
+                Spacer()
+            }
+            .padding(.top, 44)
         }
-        .padding(.top, 8)
+        .frame(height: 140)
     }
 
     private var nameSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Adınız")
-                .font(.system(size: 16, weight: .medium))
+                .font(.system(size: 15, weight: .medium))
                 .foregroundColor(.primary)
             TextField("Ad soyad", text: Binding(
                 get: {
@@ -96,7 +114,7 @@ struct ProfileView: View {
     private var genderSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Cinsiniz")
-                .font(.system(size: 16, weight: .medium))
+                .font(.system(size: 15, weight: .medium))
                 .foregroundColor(.primary)
             Menu {
                 Button("Kişi") { viewModel.gender = "MALE" }
@@ -120,7 +138,7 @@ struct ProfileView: View {
     private var citySection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Yaşadığınız şəhər")
-                .font(.system(size: 16, weight: .medium))
+                .font(.system(size: 15, weight: .medium))
                 .foregroundColor(.primary)
             Menu {
                 ForEach(cities, id: \.key) { city in
@@ -147,7 +165,7 @@ struct ProfileView: View {
     private var birthDateSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Doğum tarixi")
-                .font(.system(size: 16, weight: .medium))
+                .font(.system(size: 15, weight: .medium))
                 .foregroundColor(.primary)
             HStack {
                 DatePicker(
