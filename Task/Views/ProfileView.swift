@@ -60,7 +60,7 @@ struct ProfileView: View {
             HStack {
                 Spacer()
                 ZStack(alignment: .bottomTrailing) {
-                    AsyncImage(url: imageURL) { image in
+                    AsyncImage(url: viewModel.imageURL) { image in
                         image
                             .resizable()
                             .scaledToFill()
@@ -195,11 +195,5 @@ struct ProfileView: View {
                 .cornerRadius(30)
         }
         .padding(.top, 8)
-    }
-
-    private var imageURL: URL? {
-        guard let profile = viewModel.profile,
-              let base = Bundle.main.object(forInfoDictionaryKey: "IMAGE_BASE_URL") as? String else { return nil }
-        return URL(string: "\(base)/\(profile.profileImage)")
     }
 }

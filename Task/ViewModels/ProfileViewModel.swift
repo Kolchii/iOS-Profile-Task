@@ -7,18 +7,42 @@
 import SwiftUI
 import Combine
 
+enum ViewState {
+    case idle
+    case loading
+    case success
+    case failure(String)
+}
+
 final class ProfileViewModel: ObservableObject {
+    @Published var state: ViewState = .idle
     @Published var profile: ProfileData?
     @Published var firstName: String = ""
     @Published var lastName: String = ""
     @Published var gender: String = "MALE"
     @Published var selectedCityKey: String = "BAKI"
     @Published var birthDate: Date = Date()
-    @Published var isLoading: Bool = false
     @Published var showAlert: Bool = false
     @Published var alertMessage: String = ""
 
+    var isLoading: Bool {
+        if case .loading = state { return true }
+        return false
+    }
+
+    var imageURL: URL? {
+        guard let profile = profile,
+              let base = Bundle.main.object(forInfoDictionaryKey: APIKey.imageBaseURL) as? String else { return nil }
+        return URL(string: "\(base)/\(profile.profileImage)")
+    }
+
     private let networkService: NetworkServiceProtocol
+
+    private static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter
+    }()
 
     init(networkService: NetworkServiceProtocol = NetworkService()) {
         self.networkService = networkService
@@ -26,7 +50,7 @@ final class ProfileViewModel: ObservableObject {
 
     @MainActor
     func loadProfile() async {
-        isLoading = true
+        state = .loading
         do {
             let data = try await networkService.fetchProfile()
             self.profile = data
@@ -35,11 +59,13 @@ final class ProfileViewModel: ObservableObject {
             self.gender = data.gender
             self.selectedCityKey = data.city
             self.birthDate = parseDate(data.birthDate)
+            state = .success
         } catch {
-            alertMessage = "Məlumatlar yüklənmədi: \(error.localizedDescription)"
+            let message = (error as? NetworkError)?.errorDescription ?? error.localizedDescription
+            state = .failure(message)
+            alertMessage = message
             showAlert = true
         }
-        isLoading = false
     }
 
     @MainActor
@@ -61,21 +87,17 @@ final class ProfileViewModel: ObservableObject {
                 )
                 alertMessage = "Məlumatlar yadda saxlanıldı"
             } catch {
-                alertMessage = "Xəta baş verdi: \(error.localizedDescription)"
+                alertMessage = (error as? NetworkError)?.errorDescription ?? error.localizedDescription
             }
             showAlert = true
         }
     }
 
     private func parseDate(_ string: String) -> Date {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.date(from: string) ?? Date()
+        Self.dateFormatter.date(from: string) ?? Date()
     }
 
     private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: date)
+        Self.dateFormatter.string(from: date)
     }
 }

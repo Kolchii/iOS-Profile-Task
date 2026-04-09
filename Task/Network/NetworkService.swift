@@ -6,10 +6,20 @@
 //
 import Foundation
 
-enum NetworkError: Error {
+enum NetworkError: Error, LocalizedError {
     case invalidURL
     case decodingError
-    case serverError
+    case serverError(Int)
+    case noInternet
+
+    var errorDescription: String? {
+        switch self {
+        case .invalidURL: return "Yanlış URL"
+        case .decodingError: return "Data oxunmadı"
+        case .serverError(let code): return "Server xətası: \(code)"
+        case .noInternet: return "İnternet bağlantısı yoxdur"
+        }
+    }
 }
 
 protocol NetworkServiceProtocol {
@@ -19,16 +29,25 @@ protocol NetworkServiceProtocol {
 
 final class NetworkService: NetworkServiceProtocol {
     private let baseURL: String = {
-        Bundle.main.object(forInfoDictionaryKey: "BASE_URL") as? String ?? ""
+        Bundle.main.object(forInfoDictionaryKey: APIKey.baseURL) as? String ?? ""
     }()
 
     func fetchProfile() async throws -> ProfileData {
         guard let url = URL(string: "\(baseURL)/getProfile") else {
             throw NetworkError.invalidURL
         }
-        let (data, _) = try await URLSession.shared.data(from: url)
-        let response = try JSONDecoder().decode(ProfileResponse.self, from: data)
-        return response.data
+        let (data, response) = try await URLSession.shared.data(from: url)
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            let code = (response as? HTTPURLResponse)?.statusCode ?? 0
+            throw NetworkError.serverError(code)
+        }
+        do {
+            let response = try JSONDecoder().decode(ProfileResponse.self, from: data)
+            return response.data
+        } catch {
+            throw NetworkError.decodingError
+        }
     }
 
     func updateProfile(firstName: String, lastName: String, gender: String, city: String, birthDate: String) async throws {
@@ -46,6 +65,11 @@ final class NetworkService: NetworkServiceProtocol {
             "birthDate": birthDate
         ]
         request.httpBody = try JSONEncoder().encode(body)
-        let (_, _) = try await URLSession.shared.data(for: request)
+        let (_, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            let code = (response as? HTTPURLResponse)?.statusCode ?? 0
+            throw NetworkError.serverError(code)
+        }
     }
 }
