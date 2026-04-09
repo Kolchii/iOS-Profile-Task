@@ -14,6 +14,7 @@ enum ViewState {
     case failure(String)
 }
 
+
 final class ProfileViewModel: ObservableObject {
     @Published var state: ViewState = .idle
     @Published var profile: ProfileData?
@@ -36,6 +37,10 @@ final class ProfileViewModel: ObservableObject {
         return URL(string: "\(base)/\(profile.profileImage)")
     }
 
+    var selectedCityValue: String {
+        CityData.all.first(where: { $0.key == selectedCityKey })?.value ?? "Bakı"
+    }
+
     private let networkService: NetworkServiceProtocol
 
     private static let dateFormatter: DateFormatter = {
@@ -47,7 +52,6 @@ final class ProfileViewModel: ObservableObject {
     init(networkService: NetworkServiceProtocol = NetworkService()) {
         self.networkService = networkService
     }
-
     @MainActor
     func loadProfile() async {
         state = .loading
@@ -67,12 +71,15 @@ final class ProfileViewModel: ObservableObject {
             showAlert = true
         }
     }
-
     @MainActor
     func saveProfile() {
-        guard !firstName.trimmingCharacters(in: .whitespaces).isEmpty,
-              !lastName.trimmingCharacters(in: .whitespaces).isEmpty else {
-            alertMessage = "Ad və soyad boş ola bilməz"
+        guard !firstName.trimmingCharacters(in: .whitespaces).isEmpty else {
+            alertMessage = "Ad boş ola bilməz"
+            showAlert = true
+            return
+        }
+        guard !lastName.trimmingCharacters(in: .whitespaces).isEmpty else {
+            alertMessage = "Soyad boş ola bilməz"
             showAlert = true
             return
         }
@@ -92,7 +99,7 @@ final class ProfileViewModel: ObservableObject {
             showAlert = true
         }
     }
-
+    
     private func parseDate(_ string: String) -> Date {
         Self.dateFormatter.date(from: string) ?? Date()
     }

@@ -43,8 +43,8 @@ final class NetworkService: NetworkServiceProtocol {
             throw NetworkError.serverError(code)
         }
         do {
-            let response = try JSONDecoder().decode(ProfileResponse.self, from: data)
-            return response.data
+            let decoded = try JSONDecoder().decode(ProfileResponse.self, from: data)
+            return decoded.data
         } catch {
             throw NetworkError.decodingError
         }

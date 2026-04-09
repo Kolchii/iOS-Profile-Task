@@ -48,6 +48,7 @@ struct ProfileView: View {
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(.primary)
                 }
+                .accessibilityLabel("Geri")
                 Spacer()
                 Text("Məlumatlarım")
                     .font(.system(size: 17, weight: .semibold))
@@ -71,6 +72,7 @@ struct ProfileView: View {
                     }
                     .frame(width: 80, height: 80)
                     .clipShape(Circle())
+                    .accessibilityLabel("Profil şəkli")
 
                     ZStack {
                         Circle()
@@ -95,8 +97,8 @@ struct ProfileView: View {
                 .foregroundColor(.primary)
             TextField("Ad soyad", text: Binding(
                 get: {
-                    let full = "\(viewModel.firstName) \(viewModel.lastName)"
-                    return full.trimmingCharacters(in: .whitespaces)
+                    "\(viewModel.firstName) \(viewModel.lastName)"
+                        .trimmingCharacters(in: .whitespaces)
                 },
                 set: { val in
                     let parts = val.split(separator: " ", maxSplits: 1)
@@ -107,6 +109,7 @@ struct ProfileView: View {
             .font(.system(size: 15))
             .foregroundColor(.primary)
             .padding(.bottom, 8)
+            .accessibilityLabel("Ad və soyad")
             Divider()
         }
     }
@@ -131,6 +134,7 @@ struct ProfileView: View {
                 }
                 .padding(.bottom, 8)
             }
+            .accessibilityLabel("Cins seçimi")
             Divider()
         }
     }
@@ -141,14 +145,14 @@ struct ProfileView: View {
                 .font(.system(size: 15, weight: .medium))
                 .foregroundColor(.primary)
             Menu {
-                ForEach(cities, id: \.key) { city in
+                ForEach(CityData.all, id: \.key) { city in
                     Button(city.value) {
                         viewModel.selectedCityKey = city.key
                     }
                 }
             } label: {
                 HStack {
-                    Text(cities.first(where: { $0.key == viewModel.selectedCityKey })?.value ?? "Bakı")
+                    Text(viewModel.selectedCityValue)
                         .font(.system(size: 15))
                         .foregroundColor(.primary)
                     Spacer()
@@ -158,6 +162,7 @@ struct ProfileView: View {
                 }
                 .padding(.bottom, 8)
             }
+            .accessibilityLabel("Şəhər seçimi")
             Divider()
         }
     }
@@ -175,6 +180,7 @@ struct ProfileView: View {
                 )
                 .datePickerStyle(.compact)
                 .labelsHidden()
+                .accessibilityLabel("Doğum tarixi seçimi")
                 Spacer()
             }
             .padding(.bottom, 8)
@@ -192,8 +198,9 @@ struct ProfileView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
                 .background(Color.blue)
-                .cornerRadius(30)
+                .clipShape(RoundedRectangle(cornerRadius: 30))
         }
+        .accessibilityLabel("Məlumatları yadda saxla")
         .padding(.top, 8)
     }
 }
