@@ -8,9 +8,10 @@ import SwiftUI
 import Combine
 final class ProfileViewModel: ObservableObject {
     @Published var state: ViewState = .idle
+    @Published var profileImagePath: String = ""
     @Published var firstName: String = ""
     @Published var lastName: String = ""
-    @Published var gender: String = "MALE"
+    @Published var gender: Gender = .male
     @Published var selectedCityKey: String = "BAKI"
     @Published var birthDate: Date? = nil
     @Published var showAlert: Bool = false
@@ -22,9 +23,9 @@ final class ProfileViewModel: ObservableObject {
     }
 
     var imageURL: URL? {
-        guard let base = Bundle.main.object(forInfoDictionaryKey: APIKey.imageBaseURL) as? String,
-              !firstName.isEmpty else { return nil }
-        return URL(string: "\(base)/\(firstName)")
+        guard !profileImagePath.isEmpty,
+              let base = Bundle.main.object(forInfoDictionaryKey: APIKey.imageBaseURL) as? String else { return nil }
+        return URL(string: "\(base)/\(profileImagePath)")
     }
 
     var selectedCityValue: String {
@@ -48,6 +49,9 @@ final class ProfileViewModel: ObservableObject {
         state = .loading
         do {
             let data = try await manager.fetchProfile()
+            self.profileImagePath = data.profileImage
+            self.firstName = data.firstName
+            self.lastName = data.lastName
             self.gender = data.gender
             self.selectedCityKey = data.city
             self.birthDate = parseDate(data.birthDate)
@@ -72,14 +76,19 @@ final class ProfileViewModel: ObservableObject {
             showAlert = true
             return
         }
+        guard let birthDate else {
+            alertMessage = "Doğum tarixi seçilməyib"
+            showAlert = true
+            return
+        }
         Task {
             do {
                 try await manager.updateProfile(
                     firstName: firstName,
                     lastName: lastName,
-                    gender: gender,
+                    gender: gender.rawValue,
                     city: selectedCityKey,
-                    birthDate: formatDate(birthDate ?? Date())
+                    birthDate: formatDate(birthDate)
                 )
                 alertMessage = "Məlumatlar yadda saxlanıldı"
             } catch {

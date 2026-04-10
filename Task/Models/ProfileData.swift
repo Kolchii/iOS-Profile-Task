@@ -10,7 +10,7 @@ struct ProfileData: Codable {
     let profileImage: String
     let firstName: String
     let lastName: String
-    let gender: String
+    let gender: Gender
     let city: String
     let birthDate: String
 }

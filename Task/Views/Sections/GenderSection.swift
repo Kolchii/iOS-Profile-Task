@@ -7,7 +7,7 @@
 import SwiftUI
 
 struct GenderSection: View {
-    @Binding var gender: String
+    @Binding var gender: Gender
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -15,11 +15,11 @@ struct GenderSection: View {
                 .font(.system(size: 14, weight: .medium))
                 .foregroundColor(.primary)
             Menu {
-                Button("Kişi") { gender = "MALE" }
-                Button("Qadın") { gender = "FEMALE" }
+                Button("Kişi") { gender = .male }
+                Button("Qadın") { gender = .female }
             } label: {
                 HStack {
-                    Text(gender == "MALE" ? "Kişi" : "Qadın")
+                    Text(gender == .male ? "Kişi" : "Qadın")
                         .font(.system(size: 15))
                         .foregroundColor(.gray)
                     Spacer()

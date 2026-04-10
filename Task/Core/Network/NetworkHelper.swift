@@ -6,39 +6,33 @@
 //
 import Foundation
 
-enum NetworkError: Error, LocalizedError {
-    case invalidURL
-    case decodingError
-    case serverError(Int)
-    case noInternet
-
-    var errorDescription: String? {
-        switch self {
-        case .invalidURL: return "Yanlış URL"
-        case .decodingError: return "Data oxunmadı"
-        case .serverError(let code): return "Server xətası: \(code)"
-        case .noInternet: return "İnternet bağlantısı yoxdur"
-        }
-    }
-}
-
-protocol NetworkServiceProtocol {
-    func fetchProfile() async throws -> ProfileData
-    func updateProfile(firstName: String, lastName: String, gender: String, city: String, birthDate: String) async throws
-}
-
 final class NetworkHelper {
-    func request<T: Decodable>(url: URL) async throws -> T {
-        let (data, response) = try await URLSession.shared.data(from: url)
-        guard let httpResponse = response as? HTTPURLResponse,
-              (200...299).contains(httpResponse.statusCode) else {
-            let code = (response as? HTTPURLResponse)?.statusCode ?? 0
-            throw NetworkError.serverError(code)
-        }
+    func request<T: Decodable>(url: URL, method: HTTPMethod = .get, body: [String: String]? = nil) async throws -> T {
+        let data = try await execute(url: url, method: method, body: body)
         do {
             return try JSONDecoder().decode(T.self, from: data)
         } catch {
             throw NetworkError.decodingError
         }
+    }
+
+    func request(url: URL, method: HTTPMethod, body: [String: String]) async throws {
+        _ = try await execute(url: url, method: method, body: body)
+    }
+
+    private func execute(url: URL, method: HTTPMethod, body: [String: String]?) async throws -> Data {
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = method.rawValue
+        if let body {
+            urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            urlRequest.httpBody = try JSONEncoder().encode(body)
+        }
+        let (data, response) = try await URLSession.shared.data(for: urlRequest)
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            let code = (response as? HTTPURLResponse)?.statusCode ?? 0
+            throw NetworkError.serverError(code)
+        }
+        return data
     }
 }

@@ -28,9 +28,6 @@ final class ProfileManager: NetworkServiceProtocol {
         guard let url = URL(string: "\(baseURL)/updateProfile") else {
             throw NetworkError.invalidURL
         }
-        var request = URLRequest(url: url)
-        request.httpMethod = "PUT"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         let body: [String: String] = [
             "firstName": firstName,
             "lastName": lastName,
@@ -38,7 +35,6 @@ final class ProfileManager: NetworkServiceProtocol {
             "city": city,
             "birthDate": birthDate
         ]
-        request.httpBody = try JSONEncoder().encode(body)
-        let (_, _) = try await URLSession.shared.data(for: request)
+        try await networkHelper.request(url: url, method: .put, body: body)
     }
 }
