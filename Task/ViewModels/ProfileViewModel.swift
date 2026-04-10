@@ -7,14 +7,6 @@
 import SwiftUI
 import Combine
 
-enum ViewState {
-    case idle
-    case loading
-    case success
-    case failure(String)
-}
-
-
 final class ProfileViewModel: ObservableObject {
     @Published var state: ViewState = .idle
     @Published var profile: ProfileData?
@@ -41,7 +33,7 @@ final class ProfileViewModel: ObservableObject {
         CityData.all.first(where: { $0.key == selectedCityKey })?.value ?? "Bakı"
     }
 
-    private let networkService: NetworkServiceProtocol
+    private let manager: NetworkServiceProtocol
 
     private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -49,14 +41,15 @@ final class ProfileViewModel: ObservableObject {
         return formatter
     }()
 
-    init(networkService: NetworkServiceProtocol = NetworkService()) {
-        self.networkService = networkService
+    init(manager: NetworkServiceProtocol = ProfileManager()) {
+        self.manager = manager
     }
+
     @MainActor
     func loadProfile() async {
         state = .loading
         do {
-            let data = try await networkService.fetchProfile()
+            let data = try await manager.fetchProfile()
             self.profile = data
             self.firstName = data.firstName
             self.lastName = data.lastName
@@ -71,6 +64,7 @@ final class ProfileViewModel: ObservableObject {
             showAlert = true
         }
     }
+
     @MainActor
     func saveProfile() {
         guard !firstName.trimmingCharacters(in: .whitespaces).isEmpty else {
@@ -85,7 +79,7 @@ final class ProfileViewModel: ObservableObject {
         }
         Task {
             do {
-                try await networkService.updateProfile(
+                try await manager.updateProfile(
                     firstName: firstName,
                     lastName: lastName,
                     gender: gender,
@@ -99,7 +93,7 @@ final class ProfileViewModel: ObservableObject {
             showAlert = true
         }
     }
-    
+
     private func parseDate(_ string: String) -> Date {
         Self.dateFormatter.date(from: string) ?? Date()
     }
