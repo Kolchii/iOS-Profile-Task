@@ -31,10 +31,10 @@ struct CitySection: View {
                         .font(.system(size: 13))
                         .foregroundColor(Color(.systemGray))
                 }
-                .padding(.bottom, 8)
+                .padding()
+                .background(Color(.systemGray6))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
             }
-            .accessibilityLabel("Şəhər seçimi")
-            Divider()
         }
     }
 }

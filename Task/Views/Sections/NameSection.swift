@@ -27,10 +27,9 @@ struct NameSection: View {
                 }
             ))
             .font(.system(size: 15))
-            .foregroundColor(.primary)
-            .padding(.bottom, 8)
-            .accessibilityLabel("Ad və soyad")
-            Divider()
+            .padding()
+            .background(Color(.systemGray6))
+            .clipShape(RoundedRectangle(cornerRadius: 10))
         }
     }
 }

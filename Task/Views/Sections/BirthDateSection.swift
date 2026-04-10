@@ -16,17 +16,19 @@ struct BirthDateSection: View {
                 .foregroundColor(.primary)
             HStack {
                 DatePicker(
-                    "",
+                    "Doğum tarixi",
                     selection: $birthDate,
                     displayedComponents: .date
                 )
                 .datePickerStyle(.compact)
                 .labelsHidden()
-                .accessibilityLabel("Doğum tarixi seçimi")
                 Spacer()
+                Image(systemName: "calendar")
+                    .foregroundColor(Color(.systemGray))
             }
-            .padding(.bottom, 8)
-            Divider()
+            .padding()
+            .background(Color(.systemGray6))
+            .clipShape(RoundedRectangle(cornerRadius: 10))
         }
     }
 }

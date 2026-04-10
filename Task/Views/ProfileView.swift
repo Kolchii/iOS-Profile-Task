@@ -11,9 +11,10 @@ struct ProfileView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 20) {
                 headerSection
                 ProfileImageSection(imageURL: viewModel.imageURL)
+                    .padding(.bottom, 8)
                 NameSection(
                     firstName: $viewModel.firstName,
                     lastName: $viewModel.lastName
@@ -29,7 +30,7 @@ struct ProfileView: View {
             .padding(.horizontal, 24)
             .padding(.top, 16)
         }
-        .navigationBarHidden(true)
+        .toolbar(.hidden, for: .navigationBar)
         .overlay {
             if viewModel.isLoading {
                 ProgressView()
