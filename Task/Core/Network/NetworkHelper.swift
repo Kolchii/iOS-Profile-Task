@@ -1,5 +1,5 @@
 //
-//  NetworkService.swift
+//  NetworkHelper.swift
 //  Task
 //
 //  Created by Ibrahim Kolchi on 10.04.26.
@@ -27,15 +27,8 @@ protocol NetworkServiceProtocol {
     func updateProfile(firstName: String, lastName: String, gender: String, city: String, birthDate: String) async throws
 }
 
-final class NetworkService: NetworkServiceProtocol {
-    private let baseURL: String = {
-        Bundle.main.object(forInfoDictionaryKey: APIKey.baseURL) as? String ?? ""
-    }()
-
-    func fetchProfile() async throws -> ProfileData {
-        guard let url = URL(string: "\(baseURL)/getProfile") else {
-            throw NetworkError.invalidURL
-        }
+struct NetworkHelper {
+    static func request<T: Decodable>(url: URL) async throws -> T {
         let (data, response) = try await URLSession.shared.data(from: url)
         guard let httpResponse = response as? HTTPURLResponse,
               (200...299).contains(httpResponse.statusCode) else {
@@ -43,33 +36,17 @@ final class NetworkService: NetworkServiceProtocol {
             throw NetworkError.serverError(code)
         }
         do {
-            let decoded = try JSONDecoder().decode(ProfileResponse.self, from: data)
-            return decoded.data
+            return try JSONDecoder().decode(T.self, from: data)
         } catch {
             throw NetworkError.decodingError
         }
     }
 
-    func updateProfile(firstName: String, lastName: String, gender: String, city: String, birthDate: String) async throws {
-        guard let url = URL(string: "\(baseURL)/updateProfile") else {
-            throw NetworkError.invalidURL
-        }
+    static func requestWithBody(url: URL, method: String, body: [String: String]) async throws {
         var request = URLRequest(url: url)
-        request.httpMethod = "PUT"
+        request.httpMethod = method
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        let body: [String: String] = [
-            "firstName": firstName,
-            "lastName": lastName,
-            "gender": gender,
-            "city": city,
-            "birthDate": birthDate
-        ]
         request.httpBody = try JSONEncoder().encode(body)
-        let (_, response) = try await URLSession.shared.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse,
-              (200...299).contains(httpResponse.statusCode) else {
-            let code = (response as? HTTPURLResponse)?.statusCode ?? 0
-            throw NetworkError.serverError(code)
-        }
+        let (_, _) = try await URLSession.shared.data(for: request)
     }
 }
