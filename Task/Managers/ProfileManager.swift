@@ -6,13 +6,14 @@
 //
 import Foundation
 
-final class ProfileManager: NetworkServiceProtocol {
-    private let networkHelper = NetworkHelper()
+final class ProfileManager: ProfileServiceProtocol {
+    private let networkHelper: NetworkProtocol
+
+    init(networkHelper: NetworkProtocol = NetworkHelper()) {
+        self.networkHelper = networkHelper
+    }
 
     private let baseURL: String = {
-        // Base URL, Config.xcconfig faylında saxlanılır və Info.plist vasitəsilə oxunur.
-        // Həssas məlumatların GitHub-da görünməməsi üçün bu yanaşma istifadə edilib.
-        // Config.xcconfig faylı .gitignore-a əlavə edilib və repoda mövcud deyil.
         Bundle.main.object(forInfoDictionaryKey: APIKey.baseURL) as? String ?? ""
     }()
 
@@ -24,16 +25,16 @@ final class ProfileManager: NetworkServiceProtocol {
         return response.data
     }
 
-    func updateProfile(firstName: String, lastName: String, gender: String, city: String, birthDate: String) async throws {
+    func updateProfile(_ data: ProfileData) async throws {
         guard let url = URL(string: "\(baseURL)/updateProfile") else {
             throw NetworkError.invalidURL
         }
         let body: [String: String] = [
-            "firstName": firstName,
-            "lastName": lastName,
-            "gender": gender,
-            "city": city,
-            "birthDate": birthDate
+            "firstName": data.firstName,
+            "lastName": data.lastName,
+            "gender": data.gender.rawValue,
+            "city": data.city,
+            "birthDate": DateFormatter.profileDate.string(from: data.birthDate)
         ]
         try await networkHelper.request(url: url, method: .put, body: body)
     }

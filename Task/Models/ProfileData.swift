@@ -7,10 +7,10 @@
 import Foundation
 
 struct ProfileData: Codable {
-    let profileImage: String
-    let firstName: String
-    let lastName: String
-    let gender: Gender
-    let city: String
-    let birthDate: Date
+    var profileImage: String
+    var firstName: String
+    var lastName: String
+    var gender: Gender
+    var city: String
+    var birthDate: Date
 }

@@ -7,7 +7,7 @@
 import SwiftUI
 
 struct BirthDateSection: View {
-    @Binding var birthDate: Date?
+    @Binding var birthDate: Date
     @State private var showDatePicker = false
 
     var body: some View {
@@ -16,9 +16,9 @@ struct BirthDateSection: View {
                 .font(.system(size: 14, weight: .medium))
                 .foregroundColor(.primary)
             HStack {
-                Text(birthDate.map { formatDate($0) } ?? "Doğum tarixi")
+                Text(formatDate(birthDate))
                     .font(.system(size: 15))
-                    .foregroundColor(birthDate == nil ? .gray : .primary)
+                    .foregroundColor(.primary)
                 Spacer()
                 Image("calendar-2")
                     .resizable()
@@ -36,18 +36,15 @@ struct BirthDateSection: View {
             if showDatePicker {
                 DatePicker(
                     "",
-                    selection: Binding(
-                        get: { birthDate ?? Date() },
-                        set: {
-                            birthDate = $0
-                            showDatePicker = false
-                        }
-                    ),
+                    selection: $birthDate,
                     displayedComponents: .date
                 )
                 .datePickerStyle(.graphical)
                 .background(Color.white)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
+                .onChange(of: birthDate) { _ in
+                    showDatePicker = false
+                }
             }
         }
     }

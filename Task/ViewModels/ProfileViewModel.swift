@@ -9,12 +9,7 @@ import Combine
 
 final class ProfileViewModel: ObservableObject {
     @Published var state: ViewState = .idle
-    @Published var profileImagePath: String = ""
-    @Published var firstName: String = ""
-    @Published var lastName: String = ""
-    @Published var gender: Gender = .male
-    @Published var selectedCityKey: String = "BAKI"
-    @Published var birthDate: Date? = nil
+    @Published var profile: ProfileData?
     @Published var showAlert: Bool = false
     @Published var alertMessage: String = ""
 
@@ -24,18 +19,18 @@ final class ProfileViewModel: ObservableObject {
     }
 
     var imageURL: URL? {
-        guard !profileImagePath.isEmpty,
+        guard let path = profile?.profileImage, !path.isEmpty,
               let base = Bundle.main.object(forInfoDictionaryKey: APIKey.imageBaseURL) as? String else { return nil }
-        return URL(string: "\(base)/\(profileImagePath)")
+        return URL(string: "\(base)/\(path)")
     }
 
     var selectedCityValue: String {
-        CityData.all.first(where: { $0.key == selectedCityKey })?.value ?? "Bakı"
+        CityData.all.first(where: { $0.key == profile?.city })?.value ?? "Bakı"
     }
 
-    private let manager: NetworkServiceProtocol
+    private let manager: ProfileServiceProtocol
 
-    init(manager: NetworkServiceProtocol = ProfileManager()) {
+    init(manager: ProfileServiceProtocol = ProfileManager()) {
         self.manager = manager
     }
 
@@ -43,13 +38,7 @@ final class ProfileViewModel: ObservableObject {
     func loadProfile() async {
         state = .loading
         do {
-            let data = try await manager.fetchProfile()
-            self.profileImagePath = data.profileImage
-            self.firstName = data.firstName
-            self.lastName = data.lastName
-            self.gender = data.gender
-            self.selectedCityKey = data.city
-            self.birthDate = data.birthDate
+            profile = try await manager.fetchProfile()
             state = .success
         } catch {
             let message = (error as? NetworkError)?.errorDescription ?? error.localizedDescription
@@ -61,30 +50,20 @@ final class ProfileViewModel: ObservableObject {
 
     @MainActor
     func saveProfile() {
-        guard !firstName.trimmingCharacters(in: .whitespaces).isEmpty else {
+        guard let profile else { return }
+        guard !profile.firstName.trimmingCharacters(in: .whitespaces).isEmpty else {
             alertMessage = "Ad boş ola bilməz"
             showAlert = true
             return
         }
-        guard !lastName.trimmingCharacters(in: .whitespaces).isEmpty else {
+        guard !profile.lastName.trimmingCharacters(in: .whitespaces).isEmpty else {
             alertMessage = "Soyad boş ola bilməz"
-            showAlert = true
-            return
-        }
-        guard let birthDate else {
-            alertMessage = "Doğum tarixi seçilməyib"
             showAlert = true
             return
         }
         Task {
             do {
-                try await manager.updateProfile(
-                    firstName: firstName,
-                    lastName: lastName,
-                    gender: gender.rawValue,
-                    city: selectedCityKey,
-                    birthDate: DateFormatter.profileDate.string(from: birthDate)
-                )
+                try await manager.updateProfile(profile)
                 alertMessage = "Məlumatlar yadda saxlanıldı"
             } catch {
                 alertMessage = (error as? NetworkError)?.errorDescription ?? error.localizedDescription

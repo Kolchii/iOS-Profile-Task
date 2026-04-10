@@ -19,17 +19,20 @@ struct ProfileView: View {
                     headerSection
                     ProfileImageSection(imageURL: viewModel.imageURL)
                         .padding(.bottom, 4)
-                    NameSection(
-                        firstName: $viewModel.firstName,
-                        lastName: $viewModel.lastName
-                    )
-                    GenderSection(gender: $viewModel.gender)
-                    CitySection(
-                        selectedCityKey: $viewModel.selectedCityKey,
-                        selectedCityValue: viewModel.selectedCityValue
-                    )
-                    BirthDateSection(birthDate: $viewModel.birthDate)
-                    SaveButtonSection(action: viewModel.saveProfile)
+
+                    if let profileBinding = Binding($viewModel.profile) {
+                        NameSection(
+                            firstName: profileBinding.firstName,
+                            lastName: profileBinding.lastName
+                        )
+                        GenderSection(gender: profileBinding.gender)
+                        CitySection(
+                            selectedCityKey: profileBinding.city,
+                            selectedCityValue: viewModel.selectedCityValue
+                        )
+                        BirthDateSection(birthDate: profileBinding.birthDate)
+                        SaveButtonSection(action: viewModel.saveProfile)
+                    }
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 24)

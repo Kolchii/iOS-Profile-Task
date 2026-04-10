@@ -6,7 +6,7 @@
 //
 import Foundation
 
-final class NetworkHelper {
+final class NetworkHelper: NetworkProtocol {
     private static let decoder: JSONDecoder = {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .formatted(.profileDate)
