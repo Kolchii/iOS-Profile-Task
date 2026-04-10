@@ -8,6 +8,7 @@ import SwiftUI
 
 struct BirthDateSection: View {
     @Binding var birthDate: Date?
+    @State private var showDatePicker = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -19,25 +20,34 @@ struct BirthDateSection: View {
                     .font(.system(size: 15))
                     .foregroundColor(birthDate == nil ? .gray : .primary)
                 Spacer()
-                Image(systemName: "calendar")
-                    .foregroundColor(.gray)
+                Image("calendar-2")
+                    .resizable()
+                    .frame(width: 20, height: 20)
+                    .foregroundColor(Color(.systemGray2))
             }
             .padding(.horizontal, 14)
             .frame(height: 50)
             .background(Color.white)
             .clipShape(RoundedRectangle(cornerRadius: 10))
-            .overlay {
+            .onTapGesture {
+                showDatePicker.toggle()
+            }
+
+            if showDatePicker {
                 DatePicker(
                     "",
                     selection: Binding(
                         get: { birthDate ?? Date() },
-                        set: { birthDate = $0 }
+                        set: {
+                            birthDate = $0
+                            showDatePicker = false
+                        }
                     ),
                     displayedComponents: .date
                 )
-                .datePickerStyle(.compact)
-                .labelsHidden()
-                .opacity(0.015)
+                .datePickerStyle(.graphical)
+                .background(Color.white)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
             }
         }
     }

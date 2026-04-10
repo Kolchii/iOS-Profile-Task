@@ -63,11 +63,6 @@ struct ProfileView: View {
             }
             .accessibilityLabel("Geri")
             Spacer()
-            Text("Məlumatlarım")
-                .font(.system(size: 17, weight: .semibold))
-            Spacer()
-            Color.clear
-                .frame(width: 24, height: 24)
         }
     }
 }

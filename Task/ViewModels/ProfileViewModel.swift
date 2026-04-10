@@ -6,10 +6,8 @@
 //
 import SwiftUI
 import Combine
-
 final class ProfileViewModel: ObservableObject {
     @Published var state: ViewState = .idle
-    @Published var profile: ProfileData?
     @Published var firstName: String = ""
     @Published var lastName: String = ""
     @Published var gender: String = "MALE"
@@ -24,9 +22,9 @@ final class ProfileViewModel: ObservableObject {
     }
 
     var imageURL: URL? {
-        guard let profile = profile,
-              let base = Bundle.main.object(forInfoDictionaryKey: APIKey.imageBaseURL) as? String else { return nil }
-        return URL(string: "\(base)/\(profile.profileImage)")
+        guard let base = Bundle.main.object(forInfoDictionaryKey: APIKey.imageBaseURL) as? String,
+              !firstName.isEmpty else { return nil }
+        return URL(string: "\(base)/\(firstName)")
     }
 
     var selectedCityValue: String {
@@ -50,9 +48,6 @@ final class ProfileViewModel: ObservableObject {
         state = .loading
         do {
             let data = try await manager.fetchProfile()
-            self.profile = data
-            self.firstName = data.firstName
-            self.lastName = data.lastName
             self.gender = data.gender
             self.selectedCityKey = data.city
             self.birthDate = parseDate(data.birthDate)
