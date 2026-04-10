@@ -13,7 +13,7 @@ struct CitySection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Yaşadığınız şəhər")
-                .font(.system(size: 15, weight: .medium))
+                .font(.system(size: 14, weight: .medium))
                 .foregroundColor(.primary)
             Menu {
                 ForEach(CityData.all, id: \.key) { city in
@@ -25,14 +25,15 @@ struct CitySection: View {
                 HStack {
                     Text(selectedCityValue)
                         .font(.system(size: 15))
-                        .foregroundColor(.primary)
+                        .foregroundColor(.gray)
                     Spacer()
                     Image(systemName: "chevron.down")
                         .font(.system(size: 13))
-                        .foregroundColor(Color(.systemGray))
+                        .foregroundColor(.gray)
                 }
-                .padding()
-                .background(Color(.systemGray6))
+                .padding(.horizontal, 14)
+                .frame(height: 50)
+                .background(Color.white)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             }
         }

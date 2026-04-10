@@ -18,21 +18,25 @@ struct ProfileImageSection: View {
                         .resizable()
                         .scaledToFill()
                 } placeholder: {
-                    Image(systemName: "person.circle.fill")
-                        .resizable()
-                        .foregroundColor(Color(.systemGray3))
+                    ZStack {
+                        Circle()
+                            .fill(Color(.systemGray4))
+                            .frame(width: 80, height: 80)
+                        Image(systemName: "person.fill")
+                            .font(.system(size: 36))
+                            .foregroundColor(.gray)
+                    }
                 }
                 .frame(width: 80, height: 80)
                 .clipShape(Circle())
-                .accessibilityLabel("Profil şəkli")
 
                 ZStack {
                     Circle()
-                        .fill(Color(.systemGray5))
+                        .fill(Color.white)
                         .frame(width: 26, height: 26)
                     Image(systemName: "camera.fill")
                         .font(.system(size: 12))
-                        .foregroundColor(.black)
+                        .foregroundColor(.gray)
                 }
             }
             Spacer()

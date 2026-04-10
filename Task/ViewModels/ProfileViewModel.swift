@@ -14,7 +14,7 @@ final class ProfileViewModel: ObservableObject {
     @Published var lastName: String = ""
     @Published var gender: String = "MALE"
     @Published var selectedCityKey: String = "BAKI"
-    @Published var birthDate: Date = Date()
+    @Published var birthDate: Date? = nil
     @Published var showAlert: Bool = false
     @Published var alertMessage: String = ""
 
@@ -84,7 +84,7 @@ final class ProfileViewModel: ObservableObject {
                     lastName: lastName,
                     gender: gender,
                     city: selectedCityKey,
-                    birthDate: formatDate(birthDate)
+                    birthDate: formatDate(birthDate ?? Date())
                 )
                 alertMessage = "Məlumatlar yadda saxlanıldı"
             } catch {

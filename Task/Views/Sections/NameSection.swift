@@ -13,7 +13,7 @@ struct NameSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Adınız")
-                .font(.system(size: 15, weight: .medium))
+                .font(.system(size: 14, weight: .medium))
                 .foregroundColor(.primary)
             TextField("Ad soyad", text: Binding(
                 get: {
@@ -27,8 +27,10 @@ struct NameSection: View {
                 }
             ))
             .font(.system(size: 15))
-            .padding()
-            .background(Color(.systemGray6))
+            .foregroundColor(.primary)
+            .padding(.horizontal, 14)
+            .frame(height: 50)
+            .background(Color.white)
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
     }

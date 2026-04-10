@@ -10,25 +10,31 @@ struct ProfileView: View {
     @StateObject private var viewModel = ProfileViewModel()
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                headerSection
-                ProfileImageSection(imageURL: viewModel.imageURL)
-                    .padding(.bottom, 8)
-                NameSection(
-                    firstName: $viewModel.firstName,
-                    lastName: $viewModel.lastName
-                )
-                GenderSection(gender: $viewModel.gender)
-                CitySection(
-                    selectedCityKey: $viewModel.selectedCityKey,
-                    selectedCityValue: viewModel.selectedCityValue
-                )
-                BirthDateSection(birthDate: $viewModel.birthDate)
-                SaveButtonSection(action: viewModel.saveProfile)
+        ZStack {
+            Color(.systemGroupedBackground)
+                .ignoresSafeArea()
+
+            ScrollView {
+                VStack(spacing: 20) {
+                    headerSection
+                    ProfileImageSection(imageURL: viewModel.imageURL)
+                        .padding(.bottom, 4)
+                    NameSection(
+                        firstName: $viewModel.firstName,
+                        lastName: $viewModel.lastName
+                    )
+                    GenderSection(gender: $viewModel.gender)
+                    CitySection(
+                        selectedCityKey: $viewModel.selectedCityKey,
+                        selectedCityValue: viewModel.selectedCityValue
+                    )
+                    BirthDateSection(birthDate: $viewModel.birthDate)
+                    SaveButtonSection(action: viewModel.saveProfile)
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 24)
+                .padding(.bottom, 16)
             }
-            .padding(.horizontal, 24)
-            .padding(.top, 16)
         }
         .toolbar(.hidden, for: .navigationBar)
         .overlay {

@@ -15,11 +15,11 @@ struct SaveButtonSection: View {
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .background(Color.blue)
-                .clipShape(RoundedRectangle(cornerRadius: 30))
+                .frame(height: 52)
+                .background(Color(red: 0.094, green: 0.467, blue: 0.949))
+                .clipShape(RoundedRectangle(cornerRadius: 26))
         }
+        .padding(.horizontal, 16)
         .accessibilityLabel("Məlumatları yadda saxla")
-        .padding(.top, 8)
     }
 }
