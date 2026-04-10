@@ -13,6 +13,9 @@ final class ProfileManager: ProfileServiceProtocol {
         self.networkHelper = networkHelper
     }
 
+    // BASE_URL dəyəri Config.xcconfig faylında saxlanılır və Info.plist vasitəsilə oxunur.
+    // Config.xcconfig həssas məlumat olduğu üçün .gitignore-a əlavə edilib və repoda yoxdur.
+    // Layihəni işə salmaq üçün Task/Config/Config.xcconfig faylını yaradıb BASE_URL dəyərini əlavə edin.
     private let baseURL: String = {
         Bundle.main.object(forInfoDictionaryKey: APIKey.baseURL) as? String ?? ""
     }()
