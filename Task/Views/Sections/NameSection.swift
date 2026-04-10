@@ -15,10 +15,11 @@ struct NameSection: View {
             Text("Adınız")
                 .font(.system(size: 14, weight: .medium))
                 .foregroundColor(.primary)
-            TextField("Ad soyad", text: Binding(
+            TextField("Ad Soyad", text: Binding(
                 get: {
-                    "\(firstName) \(lastName)"
-                        .trimmingCharacters(in: .whitespaces)
+                    [firstName, lastName]
+                        .filter { !$0.isEmpty }
+                        .joined(separator: " ")
                 },
                 set: { val in
                     let parts = val.split(separator: " ", maxSplits: 1)

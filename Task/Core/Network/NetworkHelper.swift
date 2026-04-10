@@ -7,10 +7,16 @@
 import Foundation
 
 final class NetworkHelper {
+    private static let decoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .formatted(.profileDate)
+        return decoder
+    }()
+
     func request<T: Decodable>(url: URL, method: HTTPMethod = .get, body: [String: String]? = nil) async throws -> T {
         let data = try await execute(url: url, method: method, body: body)
         do {
-            return try JSONDecoder().decode(T.self, from: data)
+            return try Self.decoder.decode(T.self, from: data)
         } catch {
             throw NetworkError.decodingError
         }

@@ -12,5 +12,5 @@ struct ProfileData: Codable {
     let lastName: String
     let gender: Gender
     let city: String
-    let birthDate: String
+    let birthDate: Date
 }

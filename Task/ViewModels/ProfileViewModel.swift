@@ -6,6 +6,7 @@
 //
 import SwiftUI
 import Combine
+
 final class ProfileViewModel: ObservableObject {
     @Published var state: ViewState = .idle
     @Published var profileImagePath: String = ""
@@ -34,12 +35,6 @@ final class ProfileViewModel: ObservableObject {
 
     private let manager: NetworkServiceProtocol
 
-    private static let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter
-    }()
-
     init(manager: NetworkServiceProtocol = ProfileManager()) {
         self.manager = manager
     }
@@ -54,7 +49,7 @@ final class ProfileViewModel: ObservableObject {
             self.lastName = data.lastName
             self.gender = data.gender
             self.selectedCityKey = data.city
-            self.birthDate = parseDate(data.birthDate)
+            self.birthDate = data.birthDate
             state = .success
         } catch {
             let message = (error as? NetworkError)?.errorDescription ?? error.localizedDescription
@@ -88,7 +83,7 @@ final class ProfileViewModel: ObservableObject {
                     lastName: lastName,
                     gender: gender.rawValue,
                     city: selectedCityKey,
-                    birthDate: formatDate(birthDate)
+                    birthDate: DateFormatter.profileDate.string(from: birthDate)
                 )
                 alertMessage = "Məlumatlar yadda saxlanıldı"
             } catch {
@@ -96,13 +91,5 @@ final class ProfileViewModel: ObservableObject {
             }
             showAlert = true
         }
-    }
-
-    private func parseDate(_ string: String) -> Date {
-        Self.dateFormatter.date(from: string) ?? Date()
-    }
-
-    private func formatDate(_ date: Date) -> String {
-        Self.dateFormatter.string(from: date)
     }
 }
